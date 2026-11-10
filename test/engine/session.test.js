@@ -62,3 +62,20 @@ test('locate: far taps are flagged, not graded', () => {
   assert.equal(missed.phase, 'ask');
   assert.equal(missed.stats.answered, 0);
 });
+
+test('locate: the graded result keeps the tap point', () => {
+  const s = { ...start('locate'), current: 'a2' };
+  assert.deepEqual(S.answerLocate(s, { x: 90, y: 3 }, 50).result.point, { x: 90, y: 3 });
+});
+
+test('autoAdvance: recall at once, correct answers after a pause, mistakes wait', () => {
+  assert.equal(S.autoAdvance(start('recall')), 'none');
+  assert.equal(S.autoAdvance(S.answerRecall(S.reveal(start('recall')), false)), 'now');
+  const choice = start('choice');
+  const wrong = choice.choices.find((id) => id !== choice.current);
+  assert.equal(S.autoAdvance(S.answerChoice(choice, choice.current)), 'delay');
+  assert.equal(S.autoAdvance(S.answerChoice(choice, wrong)), 'none');
+  const locate = { ...start('locate'), current: 'a1' };
+  assert.equal(S.autoAdvance(S.answerLocate(locate, { x: 0, y: 0 }, 50)), 'delay');
+  assert.equal(S.autoAdvance(S.answerLocate(locate, { x: 100, y: 0 }, 50)), 'none');
+});

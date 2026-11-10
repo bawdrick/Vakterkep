@@ -1,10 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { fillTemplate } from '../../src/engine/format.js';
+import { fillTemplate, percent } from '../../src/engine/format.js';
 import { nearestItem } from '../../src/engine/hit-test.js';
 import { pickChoices } from '../../src/engine/choices.js';
 import { createRng, shuffle } from '../../src/engine/rng.js';
-import { createMemoryStorage, createStore } from '../../src/engine/progress-store.js';
+import { createMemoryStorage, createStore, usableStorage } from '../../src/engine/progress-store.js';
 import { recordAnswer, emptyProgress } from '../../src/engine/leitner.js';
 
 test('fillTemplate replaces known keys and keeps unknown ones', () => {
@@ -48,4 +48,23 @@ test('store survives broken or missing storage', () => {
   assert.deepEqual(store.loadSettings({ mode: 'recall' }), { mode: 'recall' });
   assert.equal(store.saveSettings({}), false);
   assert.deepEqual(createStore(undefined).loadProgress('a', 'b'), emptyProgress());
+});
+
+test('percent rounds and handles an empty total', () => {
+  assert.equal(percent(1, 3), 33);
+  assert.equal(percent(19, 19), 100);
+  assert.equal(percent(0, 0), 0);
+});
+
+// Regression: blocked localStorage (file://, private mode) must fall back to memory, not crash the app
+test('usableStorage falls back to memory when storage is blocked', () => {
+  const real = createMemoryStorage();
+  assert.equal(usableStorage(() => real), real);
+  assert.equal(real.length, 0, 'the probe key is removed');
+  const denied = usableStorage(() => { throw new Error('SecurityError'); });
+  const full = usableStorage(() => ({ setItem() { throw new Error('QuotaExceeded'); } }));
+  for (const fallback of [denied, full]) {
+    fallback.setItem('k', 'v');
+    assert.equal(fallback.getItem('k'), 'v');
+  }
 });

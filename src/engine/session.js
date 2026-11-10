@@ -20,12 +20,12 @@ function ask(state, id, rng) {
   };
 }
 
-function grade(state, isCorrect, chosenId) {
+function grade(state, isCorrect, chosenId, point = null) {
   return {
     ...state,
     phase: 'result',
     progress: recordAnswer(state.progress, state.current, isCorrect),
-    result: { correct: isCorrect, chosenId },
+    result: { correct: isCorrect, chosenId, point },
     stats: { answered: state.stats.answered + 1, correct: state.stats.correct + (isCorrect ? 1 : 0) },
   };
 }
@@ -57,7 +57,15 @@ export function answerLocate(state, point, maxDistance) {
   const candidates = state.items.filter((item) => item.kind === target.kind);
   const hit = nearestItem(candidates, point, maxDistance);
   if (!hit) return { ...state, missed: true };
-  return grade(state, hit.id === target.id, hit.id);
+  return grade(state, hit.id === target.id, hit.id, point);
+}
+
+// What the shell does after a transition: recall moves on at once (the card was
+// self-graded), a correct choice/locate answer after a short pause, a mistake waits for the user
+export function autoAdvance(state) {
+  if (state.phase !== 'result') return 'none';
+  if (state.mode === 'recall') return 'now';
+  return state.result.correct ? 'delay' : 'none';
 }
 
 export function next(state, rng) {

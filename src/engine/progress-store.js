@@ -45,6 +45,20 @@ export function createStore(storage) {
   };
 }
 
+// The given Storage if it accepts writes, else an in-memory stand-in.
+// Takes a getter because merely reading window.localStorage can throw (file://, sandboxed iframes).
+export function usableStorage(getStorage) {
+  const probe = `${PREFIX}:probe`;
+  try {
+    const storage = getStorage();
+    storage.setItem(probe, probe);
+    storage.removeItem(probe);
+    return storage;
+  } catch {
+    return createMemoryStorage();
+  }
+}
+
 // In-memory Storage stand-in for tests and blocked environments
 export function createMemoryStorage() {
   const map = new Map();

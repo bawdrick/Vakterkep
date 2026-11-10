@@ -36,9 +36,11 @@ export function validatePack(pack) {
   }
 
   // Decks reference existing kinds and are not empty
+  const items = pack.items ?? [];
+  if (!items.length) fail('no items');
   for (const deck of pack.decks ?? []) {
     if (!deck.kinds?.length || deck.kinds.some((k) => !pack.kinds?.[k])) fail(`deck ${deck.id}: bad kinds`);
-    else if (!pack.items.some((item) => deck.kinds.includes(item.kind))) fail(`deck ${deck.id}: no items`);
+    else if (!items.some((item) => deck.kinds.includes(item.kind))) fail(`deck ${deck.id}: no items`);
   }
   if (!pack.decks?.length) fail('no decks');
   return errors;
