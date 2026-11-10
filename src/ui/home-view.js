@@ -70,7 +70,11 @@ export function renderHome({ pack, settings, deckStats, markers, counts, mapElem
         modePicker(settings.mode, actions.selectMode),
         h('p', { class: 'mode-hint' }, T.modes[settings.mode].hint),
       ]),
-      toggle('hints', settings.showHints, pack.hintsLabel, actions.toggleHints),
+      h('fieldset', {}, [
+        h('legend', {}, T.helpersHeading),
+        toggle('hints', settings.showHints, pack.hintsLabel, actions.toggleHints),
+        toggle('all-markers', settings.showAllMarkers, T.allMarkers, actions.toggleAllMarkers),
+      ]),
       h('button', {
         type: 'button', class: 'btn btn-primary', 'data-key': 'start', 'data-autofocus': !confirmingReset, onClick: actions.start,
       }, T.start),

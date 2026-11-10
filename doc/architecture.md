@@ -86,7 +86,7 @@ tiszta függvényben van; a DOM réteg csak kirajzol és eseményt továbbít.
 
 ## Állapot és tárolás
 
-- `settings`: kiválasztott csomag, pakli, mód, súgó. Kulcs: `vakterkep:v1:settings`. Betöltéskor a
+- `settings`: kiválasztott csomag, pakli, mód, megyehatár súgó, minden jelölő látszik-e. Kulcs: `vakterkep:v1:settings`. Betöltéskor a
   `normalizeSettings` javítja az ismeretlen vagy elavult értékeket (pl. törölt csomag, régi mód).
 - Haladás: `vakterkep:v1:progress:<packId>:<mode>` -> `{ items: { [itemId]: { box, seen, correct } } }`.
   Módonként külön (felidézés és helymegtalálás más tudás), paklik között közös (ugyanaz az elem).
@@ -98,7 +98,10 @@ tiszta függvényben van; a DOM réteg csak kirajzol és eseményt továbbít.
 
 - Jelölők és feliratok mérete képernyő-pixelben van megadva, `ResizeObserver` számolja át viewBox egységre.
 - A körvonal `vector-effect: non-scaling-stroke`, így minden méretben azonos vastagságú.
-- A "Keresd" módban a koppintás sugara 30 képernyő-pixel; távolabbi koppintás nem számít válasznak.
+- Kvízben alapból csak a kérdezett jelölő látszik ("Keresd" módban csak a bökés után), a többi a "Minden karika és
+  pont látszik" kapcsolóval jelenik meg (ADR-017). A döntés a `quizModel`-ben van.
+- A "Keresd" módban látható jelölőknél a koppintás sugara 30 képernyő-pixel, távolabbi koppintás nem számít válasznak;
+  rejtett jelölőknél a kérdezett típus legközelebbi eleme számít (`locateRadius`).
 - Téma: CSS változók; világos = kockás füzet, sötét = iskolai tábla. Az egyetlen animáció a piros tollkarika.
   A sötét tokenek kétszer szerepelnek (rendszerbeállítás és `data-theme`); a `test/ui/styles.test.js` őrzi az egyezést.
 - A haladás a kezdőtérképen nem csak színnel látszik: tanulod = szaggatott karika / üres pont, megy = pipa;

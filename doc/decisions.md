@@ -123,3 +123,15 @@ hanem egy új bejegyzés "felülírja" (hivatkozással).
   A módválasztó natív rádiógombokból áll, így a nyilak a böngészőtől működnek.
 - **Következmény**: a framework nélküli megoldás megmarad. Új vezérlőnél a `data-key` kötelező; a
   `test/ui/app.test.js` fókusz tesztjei ezt ellenőrzik.
+
+## ADR-017: Jelölők láthatósága kapcsoló, nem külön játékmód
+
+- **Kontextus**: a kvízben minden karika és pont látszott, ami súgó: a "Keresd" módban a jó válasz a látható
+  jelölők közül kiválasztható, a többi módban a szomszédok elárulják a helyet. Kérdés volt, hogy ez külön mód legyen-e.
+- **Döntés**: beállítás (`showAllMarkers`, alapból ki), a megyehatár súgó mellett a "Segítség" csoportban; mindhárom
+  módra vonatkozik. Kikapcsolva csak a kérdezett jelölő látszik; "Keresd" módban a bökés előtt egy sem, utána a jó
+  válasz, rossz bökésnél egy piros kereszt a bökés helyén. Ilyenkor nincs célozható jelölő, ezért a bökést a
+  kérdezett típus legközelebbi eleme értékeli, távolsági korlát nélkül (`locateRadius` a `map-model.js`-ben).
+- **Következmény**: a módok száma nem duplázódik, a döntés tiszta függvényekben van (`quizModel`, `locateRadius`).
+  A haladás nem válik szét a beállítás szerint (a mentési kulcs marad `<packId>:<mode>`); ha kiderül, hogy a
+  könnyített gyakorlás túl gyorsan visz "megy" állapotba, ez külön ADR-rel módosítható.

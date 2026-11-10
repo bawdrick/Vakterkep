@@ -19,17 +19,17 @@ test('deckItems keeps only the deck kinds, in pack order', () => {
 });
 
 test('settings default to the first pack, deck and mode', () => {
-  assert.deepEqual(defaultSettings([pack]), { packId: 'mini', deckId: 'areas', mode: 'recall', showHints: false });
+  assert.deepEqual(defaultSettings([pack]), { packId: 'mini', deckId: 'areas', mode: 'recall', showHints: false, showAllMarkers: false });
   assert.deepEqual(normalizeSettings(null, [pack]), defaultSettings([pack]));
 });
 
 test('settings keep valid saved values', () => {
-  const saved = { packId: 'other', deckId: 'all', mode: 'locate', showHints: true };
+  const saved = { packId: 'other', deckId: 'all', mode: 'locate', showHints: true, showAllMarkers: true };
   assert.deepEqual(normalizeSettings(saved, [pack, other]), saved);
 });
 
 test('settings repair stale or foreign values', () => {
-  const stale = { packId: 'removed', deckId: 'all', mode: 'match', showHints: 'yes', junk: 1 };
-  assert.deepEqual(normalizeSettings(stale, [pack, other]), { packId: 'mini', deckId: 'areas', mode: 'recall', showHints: false });
+  const stale = { packId: 'removed', deckId: 'all', mode: 'match', showHints: 'yes', showAllMarkers: 1, junk: 1 };
+  assert.deepEqual(normalizeSettings(stale, [pack, other]), { packId: 'mini', deckId: 'areas', mode: 'recall', showHints: false, showAllMarkers: false });
   assert.equal(normalizeSettings({ packId: 'other', deckId: 'areas' }, [pack, other]).deckId, 'all', 'deck must exist in the chosen pack');
 });

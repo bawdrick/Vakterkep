@@ -22,6 +22,7 @@ ismétléses módszerrel, elsősorban telefonon.
 | F11 | Opcionális belső határ súgó (megyehatárok), alapból kikapcsolva. | kész |
 | F12 | Haladás törlése kétlépéses megerősítéssel. | kész |
 | F13 | Pest megye / Budapest különlegesség jelzése a kártyán. | kész |
+| F14 | Kvízben alapból csak a kérdezett jelölő látszik; "Keresd" módban a bökés előtt egy sem, utána a jó válasz (rossz bökésnél kereszt a bökés helyén). Kapcsolóval (a megyehatár súgó mellett) minden jelölő megjeleníthető. | kész |
 
 ## Nem-funkcionális követelmények
 

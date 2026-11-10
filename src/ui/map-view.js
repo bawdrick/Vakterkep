@@ -9,6 +9,7 @@ const SIZE = {
   focus: 16, focusStroke: 2.6,
   label: 22, labelGap: 21, labelBaseline: 0.32, halo: 4,
   check: 7, checkStroke: 2.2, checkHalo: 5,
+  tap: 6, tapStroke: 2.6,
 };
 
 // Pen loop: starts early and overshoots for a hand-drawn look, with a gentle wobble and a wider than tall shape
@@ -45,6 +46,15 @@ export function checkBadge(m, k) {
     s('path', { class: 'is-halo', d, 'stroke-width': SIZE.checkHalo * k }),
     s('path', { d, 'stroke-width': SIZE.checkStroke * k }),
   ]);
+}
+
+// Red pen cross where a wrong tap landed (used when the other markers are hidden)
+function tapCross({ x, y }, k) {
+  const r = SIZE.tap * k;
+  return s('path', {
+    class: 'map-tap', d: `M${x - r} ${y - r}L${x + r} ${y + r}M${x + r} ${y - r}L${x - r} ${y + r}`,
+    'stroke-width': SIZE.tapStroke * k,
+  });
 }
 
 function focusLoop(focus, k, animate) {
@@ -84,6 +94,7 @@ function drawOverlay(overlay, model, k, width, animateFocus) {
     overlay.append(markerShape(m, k));
     if (m.tone === 'mastered') overlay.append(checkBadge(m, k));
   }
+  if (model.tapMark) overlay.append(tapCross(model.tapMark, k));
   if (model.focus) overlay.append(focusLoop(model.focus, k, animateFocus));
   model.labels.forEach((l) => drawLabel(overlay, l, k, width));
 }

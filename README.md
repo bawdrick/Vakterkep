@@ -1,7 +1,7 @@
 # Vaktérkép
 
 Vaktérképes tanulókártya web app. A térképen csak a határ látszik, a karikák területek közepét
-(pl. megyéket), a pontok településeket (pl. megyeszékhelyeket) jelölnek. Három mód: Kártya, Válassz, Keresd.
+(pl. megyéket), a pontok településeket (pl. megyeszékhelyeket) jelölnek. Három mód: Kártya, Válassz, Keresd. Alapból csak a kérdezett jelölő látszik, kapcsolóval mind.
 Ismétlés Leitner-dobozokkal, haladás a böngészőben mentve.
 
 Első csomag: Magyarország 19 megyéje és megyeszékhelye. Új térkép (pl. kontinensek) egy új config fájllal adható hozzá.

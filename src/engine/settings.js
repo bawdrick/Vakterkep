@@ -3,7 +3,7 @@
 import { MODES } from './pack-schema.js';
 
 export function defaultSettings(packs) {
-  return { packId: packs[0].id, deckId: packs[0].decks[0].id, mode: MODES[0], showHints: false };
+  return { packId: packs[0].id, deckId: packs[0].decks[0].id, mode: MODES[0], showHints: false, showAllMarkers: false };
 }
 
 export function normalizeSettings(raw, packs) {
@@ -15,5 +15,6 @@ export function normalizeSettings(raw, packs) {
     deckId: pack.decks.some((d) => d.id === saved.deckId) ? saved.deckId : pack.decks[0].id,
     mode: MODES.includes(saved.mode) ? saved.mode : defaults.mode,
     showHints: saved.showHints === true,
+    showAllMarkers: saved.showAllMarkers === true,
   };
 }

@@ -91,16 +91,52 @@ test('choice: a correct answer advances after the pause, a wrong one waits for T
   assert.equal(app.getState().session.phase, 'ask');
 });
 
-test('locate: taps are graded within the tap radius, the prompt holds focus', () => {
+const currentTarget = (app) => app.getState().session.items.find((i) => i.id === app.getState().session.current);
+const overlayMarkers = ($$) => $$('.map-overlay circle.marker');
+
+test('all markers on: locate taps count only near a marker, the prompt holds focus', () => {
   const { byKey, app, $ } = mount();
+  activate(byKey('all-markers'));
   activate(byKey('mode-locate'));
   activate(byKey('start'));
   assert.equal(document.activeElement, $('.prompt'));
-  const target = app.getState().session.items.find((i) => i.id === app.getState().session.current);
+  assert.equal($('.hint').textContent, T.locateHint.ring);
+  const target = currentTarget(app);
   app.actions.tap({ x: target.x + 400, y: target.y + 400 }, 1);
   assert.equal(app.getState().session.missed, true);
   app.actions.tap({ x: target.x + 5, y: target.y }, 1);
   assert.equal(app.getState().session.result.correct, true);
+});
+
+test('default: only the asked marker is on the map, and all of them with the setting', () => {
+  const { byKey, $$ } = mount();
+  assert.equal(byKey('all-markers').checked, false);
+  activate(byKey('start'));
+  assert.equal(overlayMarkers($$).length, 1);
+  activate(byKey('back'));
+  activate(byKey('all-markers'));
+  activate(byKey('start'));
+  assert.equal(overlayMarkers($$).length, 4, 'every area of the deck');
+});
+
+test('default locate: an empty map until the tap, then the answer and a cross at the wrong tap', () => {
+  const { byKey, app, $, $$ } = mount();
+  activate(byKey('mode-locate'));
+  activate(byKey('start'));
+  assert.equal(overlayMarkers($$).length, 0);
+  assert.equal($('.map-focus'), null);
+  assert.equal($('.hint').textContent, T.locateHintHidden);
+
+  // Beyond the 30 px tap radius still counts: the nearest area of the asked kind answers
+  const target = currentTarget(app);
+  const other = app.getState().session.items.find((i) => i.kind === 'area' && i.id !== target.id);
+  app.actions.tap({ x: other.x, y: other.y + 45 }, 1);
+  const { result } = app.getState().session;
+  assert.equal(result.chosenId, other.id);
+  assert.equal(result.correct, false);
+  assert.deepEqual(overlayMarkers($$).map((m) => m.getAttribute('cx')), [String(target.x)]);
+  assert.ok($('.map-tap'), 'the cross shows where the tap landed');
+  assert.ok($('.map-focus'));
 });
 
 test('keyboard: Escape returns home, Space reveals', () => {
@@ -143,7 +179,7 @@ test('stale stored settings are repaired instead of breaking the home screen', (
   const storage = createMemoryStorage();
   storage.setItem(SETTINGS_KEY, JSON.stringify({ packId: 'gone', mode: 'match', deckId: 'x' }));
   const { app, byKey } = mount({ storage });
-  assert.deepEqual(app.getState().settings, { packId: 'mini', deckId: 'areas', mode: 'recall', showHints: false });
+  assert.deepEqual(app.getState().settings, { packId: 'mini', deckId: 'areas', mode: 'recall', showHints: false, showAllMarkers: false });
   assert.equal(byKey('deck-areas').checked, true);
 });
 

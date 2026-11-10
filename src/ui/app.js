@@ -9,12 +9,11 @@ import * as Session from '../engine/session.js';
 import { focusedKey, restoreFocus } from './dom.js';
 import { keyCommand } from './keymap.js';
 import { createMapView } from './map-view.js';
-import { homeModel, quizModel } from './map-model.js';
+import { homeModel, locateRadius, quizModel } from './map-model.js';
 import { renderHome, renderNoPacks } from './home-view.js';
 import { renderQuiz } from './quiz-view.js';
 import { T } from './strings.js';
 
-const TAP_RADIUS_PX = 30;
 const AUTO_NEXT_MS = 1000;
 
 const ids = (items) => items.map((item) => item.id);
@@ -62,6 +61,7 @@ function createActions(ctx) {
     selectDeck: (deckId) => updateSettings(ctx, { deckId }),
     selectMode: (mode) => updateSettings(ctx, { mode }),
     toggleHints: (showHints) => updateSettings(ctx, { showHints }),
+    toggleAllMarkers: (showAllMarkers) => updateSettings(ctx, { showAllMarkers }),
     // Two-step reset with an inline confirmation: window.confirm may be blocked when embedded
     reset: () => setState(ctx, { confirmingReset: true, notice: null }),
     cancelReset: () => setState(ctx, { confirmingReset: false }),
@@ -78,7 +78,10 @@ function createActions(ctx) {
     grade: (knew) => setSession(ctx, Session.answerRecall(session(), knew)),
     choose: (id) => setSession(ctx, Session.answerChoice(session(), id)),
     next: () => setSession(ctx, Session.next(session(), ctx.rng)),
-    tap: (point, unitsPerPx) => setSession(ctx, Session.answerLocate(session(), point, TAP_RADIUS_PX * unitsPerPx)),
+    tap(point, unitsPerPx) {
+      const radius = locateRadius(ctx.state.settings.showAllMarkers, unitsPerPx);
+      setSession(ctx, Session.answerLocate(session(), point, radius));
+    },
   };
 }
 
@@ -99,13 +102,14 @@ function homeScreen(ctx, view) {
 }
 
 function quizScreen(ctx, view) {
-  const { session } = ctx.state;
+  const { session, settings } = ctx.state;
+  const showAll = settings.showAllMarkers;
   const screen = renderQuiz({
-    pack: packOf(ctx), deck: deckOf(ctx), session, mapElement: view.element, actions: ctx.actions,
+    pack: packOf(ctx), deck: deckOf(ctx), session, showAll, mapElement: view.element, actions: ctx.actions,
     mastered: masteredCount(session.progress, ids(session.items)), total: session.items.length,
   });
   const tap = session.mode === 'locate' && session.phase === 'ask' ? ctx.actions.tap : null;
-  return { screen, model: quizModel(packOf(ctx), session), tap };
+  return { screen, model: quizModel(packOf(ctx), session, { showAll }), tap };
 }
 
 function render(ctx) {

@@ -38,10 +38,11 @@ function choiceBody(session, item, actions) {
   return [h('div', { class: 'options' }, options), ...feedback(result, item, T.wrongChoice(item.name), actions)];
 }
 
-function locateBody(session, item, pack, actions) {
+function locateBody(session, item, pack, showAll, actions) {
   const result = session.phase === 'result' ? session.result : null;
   if (!result) {
-    const hint = session.missed ? T.missed : T.locateHint[pack.kinds[item.kind].marker];
+    const aimHint = showAll ? T.locateHint[pack.kinds[item.kind].marker] : T.locateHintHidden;
+    const hint = session.missed ? T.missed : aimHint;
     return [h('p', { class: `hint${session.missed ? ' is-missed' : ''}`, role: 'status' }, hint)];
   }
   const chosen = session.items.find((it) => it.id === result.chosenId);
@@ -63,13 +64,13 @@ function promptHeading(text, session) {
   return h('h2', { class: 'prompt', tabindex: focusable ? '-1' : null, 'data-autofocus': focusable }, text);
 }
 
-export function renderQuiz({ pack, deck, session, mastered, total, mapElement, actions }) {
+export function renderQuiz({ pack, deck, session, showAll, mastered, total, mapElement, actions }) {
   const item = currentItem(session);
   const prompt = fillTemplate(pack.kinds[item.kind].prompts[session.mode], item);
   const body = {
     recall: () => recallBody(session, item, actions),
     choice: () => choiceBody(session, item, actions),
-    locate: () => locateBody(session, item, pack, actions),
+    locate: () => locateBody(session, item, pack, showAll, actions),
   }[session.mode]();
 
   return h('main', { class: `screen quiz mode-${session.mode}` }, [

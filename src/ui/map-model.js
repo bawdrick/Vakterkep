@@ -29,11 +29,21 @@ export function homeModel(pack, items, progress) {
   return { markers, focus: null, labels: [], counts };
 }
 
-// Quiz: target focus for recall/choice, answer feedback after grading
-export function quizModel(pack, session) {
+// Locate taps count within this screen distance of a visible marker
+export const TAP_RADIUS_PX = 30;
+
+// With hidden markers there is nothing to aim at, so the nearest item of the asked kind answers the tap
+export function locateRadius(showAll, unitsPerPx) {
+  return showAll ? TAP_RADIUS_PX * unitsPerPx : Infinity;
+}
+
+// Quiz: target focus for recall/choice, answer feedback after grading.
+// showAll: every marker of the deck is drawn; otherwise only the asked one, and in locate mode only after the tap.
+export function quizModel(pack, session, { showAll = false } = {}) {
   const target = session.items.find((item) => item.id === session.current);
   const result = session.phase === 'result' ? session.result : null;
-  const wrongId = result && !result.correct ? result.chosenId : null;
+  const wrongId = showAll && result && !result.correct ? result.chosenId : null;
+  const targetVisible = session.mode !== 'locate' || Boolean(result);
 
   const tone = (id) => {
     if (result && id === target.id) return result.correct ? 'ok' : 'answer';
@@ -48,10 +58,13 @@ export function quizModel(pack, session) {
     if (wrongId) labels.push(label(pack, session.items.find((item) => item.id === wrongId), 'wrong'));
   }
 
-  const showFocus = session.mode !== 'locate' || Boolean(result);
+  // Without the other markers a wrong tap is shown where it landed
+  const missedTap = !showAll && result && !result.correct && result.point;
+  const shown = showAll ? session.items : targetVisible ? [target] : [];
   return {
-    markers: session.items.map((item) => markerModel(pack, item, tone(item.id))),
-    focus: showFocus ? { id: target.id, x: target.x, y: target.y } : null,
+    markers: shown.map((item) => markerModel(pack, item, tone(item.id))),
+    focus: targetVisible ? { id: target.id, x: target.x, y: target.y } : null,
     labels,
+    tapMark: missedTap ? { x: result.point.x, y: result.point.y } : null,
   };
 }

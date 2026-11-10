@@ -141,6 +141,7 @@ button { font: inherit; color: inherit; }
 .map-focus.is-drawing { stroke-dasharray: 100; animation: pen-draw 420ms ease-out both; }
 @keyframes pen-draw { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
 
+.map-tap { fill: none; stroke: var(--pen-red); stroke-linecap: round; }
 .map-check path { fill: none; stroke: var(--ok); stroke-linecap: round; stroke-linejoin: round; }
 .map-check path.is-halo { stroke: var(--paper); }
 
