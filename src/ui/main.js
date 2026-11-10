@@ -4,19 +4,8 @@
 import { packs } from '../packs/index.js';
 import { validatePack } from '../engine/pack-schema.js';
 import { createRng } from '../engine/rng.js';
+import { usableStorage } from '../engine/progress-store.js';
 import { createApp } from './app.js';
-import { createMemoryStorage } from '../engine/progress-store.js';
-
-function safeStorage() {
-  try {
-    const probe = '__vakterkep_probe__';
-    window.localStorage.setItem(probe, probe);
-    window.localStorage.removeItem(probe);
-    return window.localStorage;
-  } catch {
-    return createMemoryStorage();
-  }
-}
 
 const valid = packs.filter((pack) => {
   const errors = validatePack(pack);
@@ -27,6 +16,6 @@ const valid = packs.filter((pack) => {
 createApp({
   root: document.getElementById('app'),
   packs: valid,
-  storage: safeStorage(),
+  storage: usableStorage(() => window.localStorage),
   rng: createRng(),
 });

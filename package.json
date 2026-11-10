@@ -18,6 +18,11 @@
   },
   "devDependencies": {
     "esbuild": "0.28.2",
+    "happy-dom": "21.0.4",
     "polygon-clipping": "0.15.7"
+  },
+  "overrides": {
+    "ws": "8.22.0",
+    "@types/node": "26.6.5"
   }
 }

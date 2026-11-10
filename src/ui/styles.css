@@ -125,9 +125,10 @@ button { font: inherit; color: inherit; }
 
 /* Markers: ring = area centre, dot = place */
 .marker-ring { fill: var(--paper); stroke: var(--ink); }
-.marker-dot { fill: var(--ink); }
+.marker-dot { fill: var(--ink); stroke: none; }
+/* Progress has a shape cue too: learning = dashed ring / hollow dot, mastered = tick mark */
 .marker-ring.tone-learning { stroke: var(--learning); }
-.marker-dot.tone-learning { fill: var(--learning); }
+.marker-dot.tone-learning { fill: var(--paper); stroke: var(--learning); }
 .marker-ring.tone-mastered, .marker-ring.tone-ok { stroke: var(--ok); }
 .marker-dot.tone-mastered, .marker-dot.tone-ok { fill: var(--ok); }
 .marker-ring.tone-answer { stroke: var(--pen-blue); }
@@ -139,6 +140,9 @@ button { font: inherit; color: inherit; }
 .map-focus { fill: none; stroke: var(--pen-red); stroke-linecap: round; stroke-linejoin: round; }
 .map-focus.is-drawing { stroke-dasharray: 100; animation: pen-draw 420ms ease-out both; }
 @keyframes pen-draw { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+
+.map-check path { fill: none; stroke: var(--ok); stroke-linecap: round; stroke-linejoin: round; }
+.map-check path.is-halo { stroke: var(--paper); }
 
 .map-label {
   font-family: var(--font-hand);
@@ -153,9 +157,8 @@ button { font: inherit; color: inherit; }
 
 .legend { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 8px 2px 0; padding: 0; font-size: 0.875rem; color: var(--ink-soft); }
 .legend li { display: flex; align-items: center; gap: 6px; }
-.swatch { width: 10px; height: 10px; border-radius: 50%; background: var(--ink); }
-.swatch.tone-learning { background: var(--learning); }
-.swatch.tone-mastered { background: var(--ok); }
+.swatches { display: inline-flex; }
+.swatch { width: 26px; height: 22px; overflow: visible; }
 
 /* Controls */
 .controls { display: grid; gap: 16px; }
@@ -184,10 +187,13 @@ legend { padding: 0; margin-bottom: 4px; font-weight: 600; font-size: 1.0625rem;
 .meter { display: block; height: 5px; border-radius: 3px; background: var(--grid); overflow: hidden; }
 .meter > span { display: block; height: 100%; background: var(--ok); border-radius: 3px; transition: width 300ms ease; }
 
+/* Segmented control built from native radios (visually hidden, still focusable) */
 .segmented { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--surface); }
-.segment { min-height: 46px; border: 0; background: transparent; cursor: pointer; font-weight: 500; }
+.segment { position: relative; display: grid; place-items: center; min-height: 46px; cursor: pointer; font-weight: 500; }
 .segment + .segment { border-left: 1px solid var(--line); }
-.segment[aria-checked="true"] { background: var(--ink); color: var(--paper); }
+.segment input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+.segment:has(input:checked) { background: var(--ink); color: var(--paper); }
+.segment:has(input:focus-visible) { outline: 3px solid var(--pen-blue); outline-offset: -3px; box-shadow: inset 0 0 0 5px var(--paper); }
 .mode-hint { margin: 2px 2px 0; color: var(--ink-soft); font-size: 0.9375rem; }
 
 .switch { display: flex; align-items: center; gap: 10px; cursor: pointer; }
@@ -211,6 +217,7 @@ legend { padding: 0; margin-bottom: 4px; font-weight: 600; font-size: 1.0625rem;
 .confirm { padding: 12px; border: 1px solid var(--pen-red); border-radius: var(--radius); background: var(--surface); }
 .confirm p { margin: 0 0 10px; }
 .notice { margin: 0; color: var(--ok); }
+.notice.is-error { color: var(--pen-red); }
 .attribution { color: var(--ink-soft); font-size: 0.8125rem; }
 
 /* Quiz */

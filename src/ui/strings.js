@@ -12,6 +12,8 @@ export const T = {
   start: 'Kezdés',
   mastered: (n, total) => `${n}/${total} megy`,
   legend: { idle: 'Még nem gyakoroltad', learning: 'Tanulod', mastered: 'Megy' },
+  legendItem: (label, count) => `${label}: ${count}`,
+  noPacks: 'A térképadat hibás, ezért a gyakorlás most nem indítható. Kérlek, jelezd a készítőnek.',
   reset: 'Haladás törlése',
   resetConfirm: 'Törlöd ennek a térképnek az összes haladását? Ez nem vonható vissza.',
   resetDone: 'Haladás törölve.',

@@ -1,20 +1,22 @@
 // Quiz screen: map + card with prompt, answer and actions for the current phase.
+// data-key keeps focus across re-renders, data-autofocus marks where focus goes in each phase.
 
 import { h } from './dom.js';
 import { T } from './strings.js';
-import { fillTemplate } from '../engine/format.js';
+import { fillTemplate, percent } from '../engine/format.js';
 import { currentItem } from '../engine/session.js';
 
-const button = (label, onClick, cls = 'btn') => h('button', { type: 'button', class: cls, onClick }, label);
+const button = (label, onClick, cls, key, autofocus = false) =>
+  h('button', { type: 'button', class: cls, 'data-key': key, 'data-autofocus': autofocus, onClick }, label);
 
 function recallBody(session, item, actions) {
-  if (session.phase === 'ask') return [button(T.reveal, actions.reveal, 'btn btn-primary')];
+  if (session.phase === 'ask') return [button(T.reveal, actions.reveal, 'btn btn-primary', 'reveal', true)];
   return [
     h('p', { class: 'answer' }, item.name),
     h('p', { class: 'detail' }, item.detail),
     h('div', { class: 'actions two' }, [
-      button(T.didntKnow, () => actions.grade(false), 'btn btn-wrong'),
-      button(T.knew, () => actions.grade(true), 'btn btn-ok'),
+      button(T.didntKnow, () => actions.grade(false), 'btn btn-wrong', 'didnt-know', true),
+      button(T.knew, () => actions.grade(true), 'btn btn-ok', 'knew'),
     ]),
   ];
 }
@@ -29,7 +31,8 @@ function choiceBody(session, item, actions) {
   const options = session.choices.map((id, i) => {
     const option = session.items.find((it) => it.id === id);
     return h('button', {
-      type: 'button', class: optionClass(id), disabled: Boolean(result), onClick: () => actions.choose(id),
+      type: 'button', class: optionClass(id), disabled: Boolean(result), 'data-key': `choice-${id}`,
+      'data-autofocus': !result && i === 0, onClick: () => actions.choose(id),
     }, [h('span', { class: 'key', 'aria-hidden': 'true' }, String(i + 1)), option.name]);
   });
   return [h('div', { class: 'options' }, options), ...feedback(result, item, T.wrongChoice(item.name), actions)];
@@ -50,8 +53,14 @@ function feedback(result, item, wrongText, actions) {
   return [
     h('p', { class: `verdict ${result.correct ? 'is-ok' : 'is-wrong'}`, role: 'status' }, result.correct ? T.correct : wrongText),
     h('p', { class: 'detail' }, item.detail),
-    h('div', { class: 'actions' }, [button(T.next, actions.next, 'btn btn-primary')]),
+    h('div', { class: 'actions' }, [button(T.next, actions.next, 'btn btn-primary', 'next', true)]),
   ];
+}
+
+// Locate mode has no button while asking; the prompt takes focus so keyboard users stay in the card
+function promptHeading(text, session) {
+  const focusable = session.mode === 'locate' && session.phase === 'ask';
+  return h('h2', { class: 'prompt', tabindex: focusable ? '-1' : null, 'data-autofocus': focusable }, text);
 }
 
 export function renderQuiz({ pack, deck, session, mastered, total, mapElement, actions }) {
@@ -62,20 +71,21 @@ export function renderQuiz({ pack, deck, session, mastered, total, mapElement, a
     choice: () => choiceBody(session, item, actions),
     locate: () => locateBody(session, item, pack, actions),
   }[session.mode]();
-  const pct = total ? Math.round((mastered / total) * 100) : 0;
 
   return h('main', { class: `screen quiz mode-${session.mode}` }, [
     h('header', { class: 'quiz-bar' }, [
-      button(T.back, actions.home, 'btn-text back'),
+      button(T.back, actions.home, 'btn-text back', 'back'),
       h('p', { class: 'quiz-title' }, deck.title),
       h('p', { class: 'quiz-score' }, session.stats.answered ? T.score(session.stats.correct, session.stats.answered) : ''),
     ]),
-    h('div', { class: 'meter wide', role: 'progressbar', 'aria-valuenow': String(mastered), 'aria-valuemax': String(total), 'aria-label': T.mastered(mastered, total) },
-      h('span', { style: `width:${pct}%` })),
+    h('div', {
+      class: 'meter wide', role: 'progressbar', 'aria-valuenow': String(mastered), 'aria-valuemin': '0',
+      'aria-valuemax': String(total), 'aria-label': T.mastered(mastered, total),
+    }, h('span', { style: `width:${percent(mastered, total)}%` })),
     h('section', { class: 'map-panel' }, h('div', { class: 'paper' }, mapElement)),
     h('section', { class: 'card', 'aria-live': 'polite' }, [
       deck.kinds.length > 1 && h('p', { class: 'kind' }, pack.kinds[item.kind].label),
-      h('h2', { class: 'prompt' }, prompt),
+      promptHeading(prompt, session),
       ...body,
       h('p', { class: 'keys' }, T.keyboard),
     ]),

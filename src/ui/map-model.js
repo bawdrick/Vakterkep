@@ -3,24 +3,30 @@
 
 import { MASTERED_BOX, boxOf } from '../engine/leitner.js';
 
+// Points right of this share of the map width get their label on the left
+const LABEL_FLIP_AT = 0.68;
+
+export const PROGRESS_TONES = ['idle', 'learning', 'mastered'];
+
 const markerOf = (pack, item) => pack.kinds[item.kind].marker;
+const markerModel = (pack, item, tone) => ({ id: item.id, x: item.x, y: item.y, marker: markerOf(pack, item), tone });
 
 function label(pack, item, tone) {
   const [, , width] = pack.viewBox;
-  return { id: item.id, x: item.x, y: item.y, text: item.name, tone, anchor: item.x > width * 0.68 ? 'end' : 'start' };
+  return { id: item.id, x: item.x, y: item.y, text: item.name, tone, anchor: item.x > width * LABEL_FLIP_AT ? 'end' : 'start' };
 }
 
-// Home: markers show learning progress of the selected deck
+export function progressTone(progress, id) {
+  const box = boxOf(progress, id);
+  if (box >= MASTERED_BOX) return 'mastered';
+  return box > 0 ? 'learning' : 'idle';
+}
+
+// Home: markers show learning progress of the selected deck; counts back the legend with text
 export function homeModel(pack, items, progress) {
-  const tone = (id) => {
-    const box = boxOf(progress, id);
-    return box >= MASTERED_BOX ? 'mastered' : box > 0 ? 'learning' : 'idle';
-  };
-  return {
-    markers: items.map((item) => ({ id: item.id, x: item.x, y: item.y, marker: markerOf(pack, item), tone: tone(item.id) })),
-    focus: null,
-    labels: [],
-  };
+  const markers = items.map((item) => markerModel(pack, item, progressTone(progress, item.id)));
+  const counts = Object.fromEntries(PROGRESS_TONES.map((tone) => [tone, markers.filter((m) => m.tone === tone).length]));
+  return { markers, focus: null, labels: [], counts };
 }
 
 // Quiz: target focus for recall/choice, answer feedback after grading
@@ -44,7 +50,7 @@ export function quizModel(pack, session) {
 
   const showFocus = session.mode !== 'locate' || Boolean(result);
   return {
-    markers: session.items.map((item) => ({ id: item.id, x: item.x, y: item.y, marker: markerOf(pack, item), tone: tone(item.id) })),
+    markers: session.items.map((item) => markerModel(pack, item, tone(item.id))),
     focus: showFocus ? { id: target.id, x: target.x, y: target.y } : null,
     labels,
   };
