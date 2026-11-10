@@ -135,3 +135,13 @@ hanem egy új bejegyzés "felülírja" (hivatkozással).
 - **Következmény**: a módok száma nem duplázódik, a döntés tiszta függvényekben van (`quizModel`, `locateRadius`).
   A haladás nem válik szét a beállítás szerint (a mentési kulcs marad `<packId>:<mode>`); ha kiderül, hogy a
   könnyített gyakorlás túl gyorsan visz "megy" állapotba, ez külön ADR-rel módosítható.
+
+## ADR-018: Közzététel GitHub Pages-en, GitHub Actions builddel
+
+- **Kontextus**: a vaktérkép legyen bárki számára linkkel elérhető. A `dist/` generált kimenet, nincs a repóban.
+- **Döntés**: a `.github/workflows/pages.yml` minden `main`-re küldött commitnál `npm ci`, `npm test`, `npm run build`
+  után csak a `dist/index.html`-t publikálja a GitHub hivatalos Pages actionjeivel. Piros teszttel nincs kiadás.
+  Az actionök commit SHA-ra rögzítettek (a tag kommentben), legalább 14 napos kiadásból, a függőségi szabály szerint.
+  A repó Pages forrása: Settings -> Pages -> Source: GitHub Actions (egyszeri kézi beállítás).
+- **Következmény**: cím: https://bawdrick.github.io/Vakterkep/. A https eredeten a localStorage működik, így a
+  haladás böngészőnként megmarad. Action frissítés tudatos lépés: új SHA, új tag a kommentben, 14 napos kiadás.

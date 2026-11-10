@@ -70,6 +70,7 @@ Cél: a kód évek múlva is érthető, biztonságosan bővíthető és tesztelh
 
 - Futásidejű függőség nincs; dev-függőség csak indokolt esetben, ADR-rel.
 - Pontos verzió (`"esbuild": "0.28.2"`, nem `^`), és legalább 14 napos kiadás (ellátási lánc kockázat).
+- GitHub Actions: commit SHA-ra rögzítve, a tag kommentben (`uses: actions/checkout@<sha> # v7.0.1`), szintén 14 napos kiadásból.
 - A `package-lock.json` verziózott.
 
 ## Teljesítmény és méret
@@ -93,3 +94,4 @@ Cél: a kód évek múlva is érthető, biztonságosan bővíthető és tesztelh
 3. Térkép vagy pipeline változásnál: `npm run build:packs`, `npm run preview`, a kép átnézése.
 4. Commit üzenet: `terület: mit és miért` (pl. `engine: choice distractors from same kind only`).
 5. Architekturális változás: új ADR a `doc/decisions.md` végére.
+6. A `main`-re küldött commit élesbe megy (GitHub Pages, ADR-018): push előtt `npm test` és `npm run build` zöld legyen.

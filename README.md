@@ -6,6 +6,8 @@ Ismétlés Leitner-dobozokkal, haladás a böngészőben mentve.
 
 Első csomag: Magyarország 19 megyéje és megyeszékhelye. Új térkép (pl. kontinensek) egy új config fájllal adható hozzá.
 
+**Kipróbálás:** https://bawdrick.github.io/Vakterkep/ (a `main` ág minden commitja után automatikusan frissül).
+
 ## Gyors indulás
 
 ```bash

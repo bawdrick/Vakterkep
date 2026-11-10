@@ -47,6 +47,7 @@ data/packs/           GENERÁLT csomag JSON-ok (kézzel ne szerkeszd)
 data/raw/             letöltött nyers adat (gitignore)
 test/                 engine/, geo/, ui/ (happy-dom), tools/ + packs.test.js + site.test.js; közös: fixtures/, helpers/
 dist/                 build kimenet (gitignore)
+.github/workflows/    pages.yml: teszt + build + GitHub Pages közzététel minden main push-nál (ADR-018)
 ```
 
 ## Szabályok
