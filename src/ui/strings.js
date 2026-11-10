@@ -1,0 +1,32 @@
+// All UI copy in one place (Hungarian). Pack-specific texts come from the pack itself.
+
+export const T = {
+  appTitle: 'Vaktérkép',
+  deckHeading: 'Mit gyakorolsz?',
+  modeHeading: 'Hogyan?',
+  modes: {
+    recall: { title: 'Kártya', hint: 'Megjelölök egy helyet, te felidézed a nevét, majd megfordítod a kártyát.' },
+    choice: { title: 'Válassz', hint: 'Megjelölök egy helyet, te négy név közül választod ki a jót.' },
+    locate: { title: 'Keresd', hint: 'Megadom a nevet, te megbököd a helyét a térképen.' },
+  },
+  start: 'Kezdés',
+  mastered: (n, total) => `${n}/${total} megy`,
+  legend: { idle: 'Még nem gyakoroltad', learning: 'Tanulod', mastered: 'Megy' },
+  reset: 'Haladás törlése',
+  resetConfirm: 'Törlöd ennek a térképnek az összes haladását? Ez nem vonható vissza.',
+  resetDone: 'Haladás törölve.',
+  confirmReset: 'Igen, törlöm',
+  cancel: 'Mégse',
+  back: 'Vissza',
+  reveal: 'Megfordítom',
+  knew: 'Tudtam',
+  didntKnow: 'Nem tudtam',
+  next: 'Tovább',
+  correct: 'Jó!',
+  wrongChoice: (target) => `Nem jó, ez ${target}.`,
+  wrongLocate: (chosen) => `Nem jó, ez ${chosen} volt.`,
+  locateHint: { ring: 'Bökj a megfelelő karikára.', dot: 'Bökj a megfelelő pontra.' },
+  missed: 'Ide nem esik jelölés. Bökj közelebb egy karikához vagy ponthoz.',
+  score: (correct, answered) => `${correct}/${answered} jó`,
+  keyboard: 'Billentyűk: szóköz vagy Enter: megfordít, tovább. Balra/jobbra nyíl: nem tudtam, tudtam. 1-4: válasz.',
+};

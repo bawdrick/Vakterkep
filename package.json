@@ -1,0 +1,23 @@
+{
+  "name": "vakterkep",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Vaktérképes tanulókártya web app: térképes adatcsomagok + általános tanulómotor.",
+  "type": "module",
+  "scripts": {
+    "fetch-sources": "node tools/fetch-sources.js",
+    "build:packs": "node tools/build-pack.js --all",
+    "build:site": "node tools/build-site.js",
+    "build": "npm run build:packs && npm run build:site",
+    "watch": "node tools/build-site.js --watch",
+    "preview": "node tools/preview-pack.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "polygon-clipping": "0.15.7"
+  }
+}
