@@ -32,7 +32,7 @@ Minta: `tools/pack-configs/hu-megyek.js`.
 | `regions` | lista vagy függvény `(sources) => lista`; elemei: `id`, `name`, `parts`, opcionálisan `seat`, `seatRef`, `details`, `quiz: false` |
 
 Sablon változók a `detail` és `prompts` szövegekben: `{name}`, `{region}`, `{seat}`.
-`seatRef`: ha a település a forrásban más kulccsal szerepel, mint a megjelenített neve (pl. országkód).
+`seatRef`: ha a település a forrásban más kulccsal szerepel, mint a megjelenített neve (pl. országkód). Lásd ADR-014.
 `details`: típusonkénti egyedi szöveg egy régióra (pl. Pest megye és Budapest).
 
 ## Példa: Európa országai és fővárosai (vázlat)

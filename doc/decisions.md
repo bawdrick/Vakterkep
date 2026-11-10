@@ -92,3 +92,34 @@ hanem egy új bejegyzés "felülírja" (hivatkozással).
 - **Döntés**: világos téma = kockás füzetlap, golyóstoll-kék és tanári piros; sötét téma = zöld tábla krétaszínekkel.
   Betűk: Lexend (UI), Caveat (kézírásos válasz és feliratok). Egyetlen animáció: a piros tollkarika megrajzolása.
 - **Következmény**: felismerhető, nyugodt felület; a színek CSS tokenekben, mindkét témára definiálva.
+
+## ADR-014: Generált régiók (`regions` függvény) és `seatRef`
+
+- **Kontextus**: egy kontinens csomagnál 40-50 országot kézzel felsorolni hibalehetőség; a fővárosok neve a
+  forrásban sokszor nem egyezik a megjelenített névvel, országkóddal viszont egyértelmű.
+- **Döntés**: a config `regions` mezője lista vagy `(sources) => lista` függvény lehet. A régió `seatRef` mezője
+  megadja, milyen kulccsal (a places forrás `idProp`-ja szerint) keressük a székhelyet; ha hiányzik, a `seat` neve a kulcs.
+- **Következmény**: a megye csomag explicit lista marad, a kontinens csomagok a forrásból generálhatók. A builder
+  ugyanúgy hangosan bukik hiányzó egységre vagy településre; a `test/pack-builder.test.js` generált régiókkal fut.
+
+## ADR-015: UI tesztek happy-dom-mal
+
+- **Kontextus**: a UI réteg teszt nélkül fejlődött, és ott voltak a valódi hibák (fókuszvesztés, csak szín).
+  A Playwright e2e böngészőletöltéssel nehéz; a `node:test` önmagában nem ad DOM-ot.
+- **Döntés**: dev-függőség a `happy-dom` (pontos verzió). A tesztek a `test/helpers/dom-env.js`-szel kapnak
+  `window`/`document` globálist; a teljes appot (`createApp`) is ezen futtatjuk, kézi időzítővel és memória-tárolóval.
+  A 14 napnál frissebb tranzitív függőségeket (`ws`, `@types/node`) a `package.json` `overrides` mezője rögzíti.
+- **Következmény**: kattintás, billentyű, fókusz és képernyőváltás tesztelhető. Layoutot (méret, `getBBox`) a
+  happy-dom nem számol, ezért a mérésfüggő döntések tiszta függvények (pl. `fitSide`), a vizuális ellenőrzés kézi
+  marad; az e2e továbbra is a backlogban van.
+
+## ADR-016: Fókusz megőrzése teljes újrarajzoláskor (kiegészíti az ADR-001-et)
+
+- **Kontextus**: a teljes képernyő újrarajzolás minden kattintás után kicserélte a fókuszált elemet, így a
+  billentyűzetes használó elvesztette a helyét.
+- **Döntés**: minden vezérlő stabil `data-key` attribútumot kap, a képernyő fázisonként egy `data-autofocus`
+  alapértelmezést jelöl. Rajzolás előtt megjegyezzük a fókuszált kulcsot, utána ugyanarra (ha eltűnt vagy letiltott,
+  az alapértelmezésre) tesszük a fókuszt (`src/ui/dom.js`). Csak akkor mozdítunk, ha a fókusz az appon belül volt.
+  A módválasztó natív rádiógombokból áll, így a nyilak a böngészőtől működnek.
+- **Következmény**: a framework nélküli megoldás megmarad. Új vezérlőnél a `data-key` kötelező; a
+  `test/ui/app.test.js` fókusz tesztjei ezt ellenőrzik.

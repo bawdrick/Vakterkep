@@ -9,6 +9,7 @@ Cél: a kód évek múlva is érthető, biztonságosan bővíthető és tesztelh
 - Pack szerkezet: `src/engine/pack-schema.js`, ezt használja a build, a teszt és az app is.
 - Szövegek: `src/ui/strings.js` (UI), a config `kinds` része (csomag-specifikus promptok, részletek).
 - Színek, méretek: CSS tokenek a `styles.css` elején; a térkép jelölőméretei a `map-view.js` `SIZE` objektumában.
+- Közös segédfüggvények: távolság `src/engine/distance.js`, kerekítés `tools/geo/round.js`, százalék `src/engine/format.js`.
 - Ha ugyanazt a logikát másodszor írnád le, emeld ki függvénybe abban a rétegben, ahová tartozik.
 
 ### KISS és YAGNI, de kijelölt bővítési pontokkal
@@ -21,14 +22,17 @@ Cél: a kód évek múlva is érthető, biztonságosan bővíthető és tesztelh
 - `src/engine` és a `tools/geo` tiszta függvények: bemenet -> kimenet, mellékhatás nélkül, a bemenetet nem módosítják.
 - Mellékhatás (DOM, tárolás, fájl IO, hálózat) csak a héjban: `src/ui/app.js`, `src/ui/*-view.js`, `src/ui/map-view.js`,
   `tools/*.js` CLI-k, `tools/pack-io.js`.
+- A héj nem dönt: ha egy `if` azt dönti el, mi történjen (továbblépés, mi látszik), az tiszta függvény az engine-ben
+  vagy a `map-model.js`-ben, és a héj csak alkalmazza (pl. `autoAdvance`, `keyCommand`).
 - A view-k előtt tiszta view-model áll (`map-model.js`), így a megjelenítési döntések is tesztelhetők.
 
 ### Egy felelősség modulonként
 - Egy fájl egy témát old meg; 200 sor fölött gondold át a bontást.
 - Függvények lehetőleg 40 sor alatt; ha egy blokk fölé kommentet írnál, az gyakran egy függvénynév.
+  A gyárfüggvényekre (`createApp`, `createMapView`) is vonatkozik: a részlépések modulszintű függvények.
 
 ### Függőség-injektálás
-- A véletlen (`rng`) és a tárolás (`storage`) paraméterként érkezik. Így a teszt determinisztikus (seedelt rng,
+- A véletlen (`rng`), a tárolás (`storage`) és az időzítő (`timers`) paraméterként érkezik. Így a teszt determinisztikus (seedelt rng,
   memória-tároló).
 
 ### Adatvezérelt bővítés
@@ -50,11 +54,17 @@ Cél: a kód évek múlva is érthető, biztonságosan bővíthető és tesztelh
 
 ## Tesztelés
 
-- Minden engine és geo modulnak van unit tesztje (`test/engine`, `test/geo`).
+- Minden engine és geo modulnak van unit tesztje (`test/engine`, `test/geo`), a hibaágaknak is (negatív teszt).
+- UI: `test/ui` happy-dom-on (ADR-015). A view-modell és a billentyűtérkép tiszta tesztet kap, a teljes app
+  (`createApp`) viselkedéstesztet: kattintás, billentyű, fókusz, időzítés.
+- CLI eszközök: a logika exportált függvény (`buildChecked`, `extractSubset`, `renderPreview`), a `main` csak IO;
+  legalább egy CLI-t a teszt ténylegesen elindít (`test/tools/cli.test.js`), mert az indítás is elromolhat.
+- Közös tesztadat: `test/fixtures/` (mini forrás + config, mini futásidejű pack); DOM: `test/helpers/dom-env.js`.
 - Minden csomagra fut a `test/packs.test.js`: felépül, átmegy a geo validáción, és a commitolt JSON naprakész.
 - A `test/site.test.js` a kimenet szerződését védi (önálló fájl, méret, engedélyezett hostok).
-- Hibajavítás előtt írj egy elbukó tesztet, ami a hibát reprodukálja.
-- UI változásnál kézi ellenőrzés 390 px és 1280 px szélességen, világos és sötét témában (a Playwright e2e a backlogban van).
+- Hibajavítás előtt írj egy elbukó tesztet, ami a hibát reprodukálja; fölé `// Regression: ...` komment kerül.
+- UI változásnál ezen felül kézi ellenőrzés 390 px és 1280 px szélességen, világos és sötét témában
+  (a Playwright e2e a backlogban van).
 
 ## Függőségek
 
@@ -72,12 +82,14 @@ Cél: a kód évek múlva is érthető, biztonságosan bővíthető és tesztelh
 - Minden interakció elérhető billentyűzettel, látható fókusszal.
 - Érintési célok legalább 44 px magasak.
 - Animáció csak `prefers-reduced-motion` tiszteletben tartásával.
+- Újrarajzolás után a fókusz a helyén marad: új vezérlő `data-key`-t kap, a fázis fő vezérlője `data-autofocus`-t.
+- Csoportos választás (pakli, mód) natív rádiógombbal, így a nyilak és a felolvasó szerepek maguktól működnek.
 - Szín sosem az egyetlen jelzés: a visszajelzés szövegben is megjelenik.
 
 ## Munkafolyamat
 
 1. Olvasd el a `CLAUDE.md`-t és az érintett doksit.
-2. Kis, önálló lépések; minden lépés után `npm test`.
+2. Kis, önálló lépések; minden lépés után `npm test`, zöld teszt után commit (git, `main` ág).
 3. Térkép vagy pipeline változásnál: `npm run build:packs`, `npm run preview`, a kép átnézése.
 4. Commit üzenet: `terület: mit és miért` (pl. `engine: choice distractors from same kind only`).
 5. Architekturális változás: új ADR a `doc/decisions.md` végére.

@@ -45,6 +45,6 @@ ismétléses módszerrel, elsősorban telefonon.
 5. **Párosítás mód**: megye -> székhely (térkép nélkül vagy kiemelt területtel).
 6. **Statisztika nézet**: leggyakrabban elrontott elemek, időbeli fejlődés.
 7. **PWA**: telepíthető, offline cache, saját ikon.
-8. **E2E tesztek** Playwrighttal (jelenleg kézi ellenőrzés + unit tesztek).
+8. **E2E tesztek** Playwrighttal (jelenleg unit tesztek, happy-dom UI tesztek és kézi böngészős ellenőrzés).
 9. **Topológia-megőrző egyszerűsítés** (közös határszakaszok egyszer), ha a súgó réteg mérete számít.
 10. **i18n**: `strings.js` nyelvenként, csomagonkénti `lang`.

@@ -15,7 +15,7 @@ Részletek: `doc/requirements.md`.
 ## Parancsok
 
 ```bash
-npm install                 # 2 pinned devDependency: esbuild, polygon-clipping
+npm install                 # 3 pinned devDependency: esbuild, polygon-clipping, happy-dom (UI tesztek)
 npm test                    # node:test, minden tesztnek zöldnek kell lennie
 npm run build               # build:packs + build:site -> dist/index.html
 npm run build:packs         # tools/pack-configs/*.js -> data/packs/*.json (+ geo validáció)
@@ -35,8 +35,8 @@ blokkolva lehet, ilyenkor a haladás csak az adott látogatásig él (memória f
 ```
 CLAUDE.md, README.md, package.json
 doc/                  követelmények, architektúra, döntések (ADR), fejlesztési irányelvek, új csomag útmutató
-src/engine/           tiszta logika, DOM nélkül: session (állapotgép), leitner, choices, hit-test, pack-schema, store
-src/ui/               vékony DOM réteg: app (vezérlő), *-view (renderelés), map-model (tiszta view-model), map-view (SVG)
+src/engine/           tiszta logika, DOM nélkül: session (állapotgép), leitner, choices, hit-test, pack-schema, settings, store
+src/ui/               vékony DOM réteg: app (vezérlő), *-view (renderelés), map-model + keymap (tiszta), map-view (SVG)
 src/ui/strings.js     MINDEN felhasználói szöveg itt (magyar)
 src/ui/styles.css     design tokenek (világos: kockás füzet, sötét: iskolai tábla)
 src/packs/index.js    a beépített csomagok listája
@@ -45,7 +45,7 @@ tools/pack-configs/   csomagonként egy deklaratív config (EZ a tartalom forrá
 data/sources/         a forrásadatok csomagra vágott, verziózott kivonata
 data/packs/           GENERÁLT csomag JSON-ok (kézzel ne szerkeszd)
 data/raw/             letöltött nyers adat (gitignore)
-test/                 engine/, geo/, ui/ unit tesztek + packs.test.js + site.test.js
+test/                 engine/, geo/, ui/ (happy-dom), tools/ + packs.test.js + site.test.js; közös: fixtures/, helpers/
 dist/                 build kimenet (gitignore)
 ```
 
@@ -61,10 +61,13 @@ dist/                 build kimenet (gitignore)
 - **Függőségek**: pontos verzió, legalább 14 napos kiadás. Új függőség csak ADR-rel (`doc/decisions.md`).
 - **Döntések**: architekturális változásnál új ADR bejegyzés a `doc/decisions.md` végére.
 - **Akadálymentesség**: billentyűzet, látható fókusz, `prefers-reduced-motion`, világos/sötét téma, min. 44 px érintési cél.
+  Új vezérlő `data-key`-t kap (fókusz megőrzés, ADR-016); szín sosem az egyetlen jelzés.
+- **Héj vs. döntés**: az `app.js` nem dönt; a döntés tiszta függvény (engine vagy `map-model.js`), teszttel.
+- **Git**: zöld teszt után kis commit, üzenet: `terület: mit és miért`.
 
 ## Kész akkor, ha
 
-1. `npm test` zöld, és az új logikához van teszt.
+1. `npm test` zöld, és az új logikához van teszt (UI-hoz is, `test/ui`); hibajavításhoz regressziós teszt.
 2. `npm run build` hiba nélkül lefut, a geo validáció tiszta.
 3. Térképet érintő változásnál megnézted a `npm run preview` képet és a UI-t mobil (390 px) és desktop szélességen.
 4. Az érintett doksi frissítve (követelmény, ADR, útmutató).
