@@ -3,10 +3,12 @@
 
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { basename } from 'node:path';
-import { configsFromArgs, fromRoot, readJson, writeJson } from './pack-io.js';
+import { configsFromArgs, fromRoot, isMain, readJson, writeJson } from './pack-io.js';
+import { roundTo } from './geo/round.js';
 
-const round5 = (n) => Math.round(n * 1e5) / 1e5;
-const roundCoords = (c) => (typeof c[0] === 'number' ? c.map(round5) : c.map(roundCoords));
+// 5 decimal degrees is ~1 m, plenty for a schematic map
+const COORD_DECIMALS = 5;
+const roundCoords = (c) => (typeof c[0] === 'number' ? c.map((n) => roundTo(n, COORD_DECIMALS)) : c.map(roundCoords));
 
 async function download(url) {
   const target = fromRoot('data/raw', basename(url));
@@ -41,4 +43,4 @@ async function main() {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main().catch((e) => { console.error(e); process.exit(1); });
+if (isMain(import.meta.url)) main().catch((e) => { console.error(e); process.exit(1); });

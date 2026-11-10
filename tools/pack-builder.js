@@ -7,10 +7,13 @@ import { createProjection, centerOf, fitToCanvas } from './geo/projection.js';
 import { simplifyMultiPolygon } from './geo/simplify.js';
 import { polylabel } from './geo/polylabel.js';
 import { multiPolygonToPath } from './geo/svg-path.js';
+import { roundTo } from './geo/round.js';
 import { fillTemplate } from '../src/engine/format.js';
 import { SCHEMA_VERSION } from '../src/engine/pack-schema.js';
 
-const round1 = (n) => Math.round(n * 10) / 10;
+// Marker coordinates: 0.1 px is far below what a tap or the eye can resolve
+const MARKER_DECIMALS = 1;
+const roundPx = (n) => roundTo(n, MARKER_DECIMALS);
 
 function indexFeatures(collection, idProp) {
   return new Map(collection.features.map((f) => [f.properties[idProp], f]));
@@ -38,7 +41,7 @@ function buildItems(config, regions, placeIndex, project) {
     items.push({
       id: region.id, kind: 'area', group: region.id, name: region.name,
       detail: detail('area'),
-      x: round1(ax), y: round1(ay),
+      x: roundPx(ax), y: roundPx(ay),
     });
 
     // Seat marker from the populated places source
@@ -47,7 +50,7 @@ function buildItems(config, regions, placeIndex, project) {
     items.push({
       id: `${region.id}/seat`, kind: 'place', group: region.id, name: region.seat,
       detail: detail('place'),
-      x: round1(sx), y: round1(sy),
+      x: roundPx(sx), y: roundPx(sy),
     });
   }
   return items;

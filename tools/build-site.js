@@ -3,7 +3,7 @@
 
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import * as esbuild from 'esbuild';
-import { fromRoot } from './pack-io.js';
+import { fromRoot, isMain } from './pack-io.js';
 
 const OUT = fromRoot('dist/index.html');
 
@@ -49,4 +49,4 @@ async function main() {
   console.log('watching src/ and data/packs/ ...');
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main().catch((e) => { console.error(e); process.exit(1); });
+if (isMain(import.meta.url)) main().catch((e) => { console.error(e); process.exit(1); });

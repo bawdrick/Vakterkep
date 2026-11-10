@@ -34,6 +34,11 @@ export function loadSources(config) {
   );
 }
 
+// True when the module is the script node was started with (works with Windows paths too)
+export function isMain(moduleUrl, argv = process.argv) {
+  return Boolean(argv[1]) && pathToFileURL(resolve(argv[1])).href === moduleUrl;
+}
+
 // Resolves CLI args: --all or explicit pack ids
 export async function configsFromArgs(args) {
   const ids = args.includes('--all') || args.length === 0 ? listConfigIds() : args.filter((a) => !a.startsWith('--'));

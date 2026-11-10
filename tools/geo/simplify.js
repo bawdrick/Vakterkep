@@ -1,6 +1,6 @@
 // Douglas-Peucker simplification for closed rings in pixel space.
 
-import { ringArea } from './geometry.js';
+import { distance, ringArea } from './geometry.js';
 
 function segmentDistance([px, py], [ax, ay], [bx, by]) {
   const dx = bx - ax;
@@ -42,7 +42,7 @@ export function simplifyRing(ring, tolerance, minArea = tolerance * tolerance) {
   let far = 1;
   let farDist = 0;
   open.forEach((p, i) => {
-    const d = Math.hypot(p[0] - open[0][0], p[1] - open[0][1]);
+    const d = distance(p, open[0]);
     if (d > farDist) [farDist, far] = [d, i];
   });
   const left = simplifyLine(open.slice(0, far + 1), tolerance);

@@ -1,6 +1,7 @@
 // Geographic sanity checks on a freshly built pack (runs in build and tests).
 
-import { distance, pointInMultiPolygon, pointWithinOuterRings } from './geo/geometry.js';
+import { pointInMultiPolygon, pointWithinOuterRings } from './geo/geometry.js';
+import { itemDistance } from '../src/engine/distance.js';
 import { validatePack } from '../src/engine/pack-schema.js';
 
 function checkPlacement(pack, geometry) {
@@ -27,7 +28,7 @@ function closestPairs(items) {
   const pairs = [];
   for (let i = 0; i < items.length; i++) {
     for (let j = i + 1; j < items.length; j++) {
-      pairs.push({ a: items[i].name, b: items[j].name, d: distance([items[i].x, items[i].y], [items[j].x, items[j].y]) });
+      pairs.push({ a: items[i].name, b: items[j].name, d: itemDistance(items[i], items[j]) });
     }
   }
   return pairs.sort((p, q) => p.d - q.d);
